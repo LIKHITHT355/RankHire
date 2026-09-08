@@ -1,0 +1,181 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+/*
+ * Rank Hire design system.
+ * Editorial academic record: ink navy, warm paper, restrained gold.
+ * Serif display for headings, sans for interface, mono for numbers.
+ * Every colour lives here as a token so screens never hard code one.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 3px);
+  --radius-md: calc(var(--radius) - 1px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-merit: var(--merit);
+  --color-merit-foreground: var(--merit-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-rule: var(--rule);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+}
+
+:root {
+  --radius: 0.375rem;
+  --background: oklch(0.975 0.011 85);
+  --foreground: oklch(0.24 0.045 262);
+  --card: oklch(0.993 0.006 85);
+  --card-foreground: oklch(0.24 0.045 262);
+  --popover: oklch(0.993 0.006 85);
+  --popover-foreground: oklch(0.24 0.045 262);
+  --primary: oklch(0.27 0.062 262);
+  --primary-foreground: oklch(0.98 0.01 85);
+  --secondary: oklch(0.945 0.014 85);
+  --secondary-foreground: oklch(0.27 0.062 262);
+  --muted: oklch(0.948 0.012 85);
+  --muted-foreground: oklch(0.51 0.024 258);
+  --accent: oklch(0.93 0.024 85);
+  --accent-foreground: oklch(0.27 0.062 262);
+  --merit: oklch(0.7 0.106 78);
+  --merit-foreground: oklch(0.26 0.05 262);
+  --destructive: oklch(0.51 0.16 29);
+  --destructive-foreground: oklch(0.98 0.01 85);
+  --success: oklch(0.5 0.09 155);
+  --border: oklch(0.885 0.014 85);
+  --rule: oklch(0.845 0.018 85);
+  --input: oklch(0.885 0.014 85);
+  --ring: oklch(0.7 0.106 78);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  /* Keyboard users must always see where they are on the page. */
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* A small uppercase label used above sections and stats. */
+  .eyebrow {
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+    font-weight: 500;
+  }
+
+  /* Numbers, ranks and ids always use the monospace face. */
+  .numeral {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The standard paper panel used for cards and tables. */
+  .panel {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .rh-input {
+    width: 100%;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-input);
+    border-radius: var(--radius-md);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-foreground);
+  }
+
+  .rh-input::placeholder {
+    color: var(--color-muted-foreground);
+  }
+
+  .rh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-md);
+    padding: 0.55rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.18s ease;
+    cursor: pointer;
+  }
+
+  .rh-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .rh-btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+
+  .rh-btn-primary:hover:not(:disabled) {
+    background-color: color-mix(in oklab, var(--color-primary) 88%, white);
+  }
+
+  .rh-btn-ghost {
+    background-color: transparent;
+    color: var(--color-foreground);
+    border: 1px solid var(--color-border);
+  }
+
+  .rh-btn-ghost:hover:not(:disabled) {
+    background-color: var(--color-accent);
+  }
+
+  .rh-btn-danger {
+    background-color: transparent;
+    color: var(--color-destructive);
+    border: 1px solid color-mix(in oklab, var(--color-destructive) 35%, transparent);
+  }
+
+  .rh-btn-danger:hover:not(:disabled) {
+    background-color: color-mix(in oklab, var(--color-destructive) 8%, transparent);
+  }
+}

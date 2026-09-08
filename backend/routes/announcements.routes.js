@@ -1,0 +1,2 @@
+import { Router } from "express"; import * as controller from "../controllers/announcements.controller.js"; import { requireAuth } from "../middleware/requireAuth.js"; import { requireRole } from "../middleware/requireRole.js";
+const router = Router(); router.get("/", requireAuth, controller.list); router.post("/", requireAuth, requireRole("tpo"), controller.create); router.delete("/:id", requireAuth, requireRole("tpo"), controller.remove); export default router;

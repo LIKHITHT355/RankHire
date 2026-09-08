@@ -1,0 +1,2 @@
+import { Router } from "express"; import * as controller from "../controllers/settings.controller.js"; import { requireAuth } from "../middleware/requireAuth.js"; import { requireRole } from "../middleware/requireRole.js";
+const router = Router(); router.get("/", requireAuth, requireRole("tpo"), controller.get); router.patch("/", requireAuth, requireRole("tpo"), controller.update); export default router;

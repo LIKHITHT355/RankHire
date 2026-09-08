@@ -1,0 +1,2 @@
+import { Router } from "express"; import * as controller from "../controllers/shortlists.controller.js"; import { requireAuth } from "../middleware/requireAuth.js"; import { requireRole } from "../middleware/requireRole.js";
+const router = Router(); router.get("/", requireAuth, requireRole("company", "tpo"), controller.list); router.post("/", requireAuth, requireRole("company", "tpo"), controller.create); export default router;
