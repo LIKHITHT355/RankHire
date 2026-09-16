@@ -29,7 +29,7 @@ function StudentAnnouncements() {
                     {new Date(a.createdAt).toLocaleDateString()}
                   </p>
                 ) : null}
-                <p className="mt-3 text-sm text-muted-foreground">{a.body}</p>
+                <p className="mt-3 text-sm text-muted-foreground">{a.message}</p>
               </li>
             ))}
           </ul>

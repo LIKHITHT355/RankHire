@@ -31,7 +31,7 @@ export function getMyProfile() {
 // Only the fields that were edited are sent across.
 // The backend decides what is allowed to change.
 export function updateProfile(profile) {
-  return request("/students/me", { method: "PATCH", body: profile });
+  return request("/api/student/profile", { method: "POST", body: profile });
 }
 
 // This reads the current resume status for the signed in student.

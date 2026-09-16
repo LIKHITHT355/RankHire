@@ -1,11 +1,22 @@
 import StudentProfile from "../models/StudentProfile.js";
 import Marksheet from "../models/Marksheet.js";
+import User from "../models/User.js";
 
 const profileCompletion = (p) => {
   const fields = [p.department, p.graduationBatch, p.phone, p.skills?.length, p.cgpa !== undefined && p.cgpa !== null, p.resumeUrl];
   return Math.round((fields.filter(Boolean).length / fields.length) * 100);
 };
-const shape = (p) => ({ ...p.toObject(), profileCompletion: profileCompletion(p) });
+const shape = (p) => {
+  const data = p.toObject();
+  return {
+    ...data,
+    // Older profiles used only the linked user name and graduationBatch.
+    // Keep them readable while new saves persist the frontend field names.
+    name: data.name ?? data.user?.name,
+    batch: data.batch ?? data.graduationBatch,
+    profileCompletion: profileCompletion(p),
+  };
+};
 
 // This returns student profiles to placement officers with useful filters.
 // Search checks names and emails after joining the linked user account.
@@ -51,9 +62,41 @@ export async function updateMine(req, res, next) {
   try {
     const allowed = ["department", "graduationBatch", "phone", "skills", "cgpa", "backlogs"];
     const update = Object.fromEntries(Object.entries(req.body).filter(([key]) => allowed.includes(key)));
+    if (Object.hasOwn(req.body, "batch")) {
+      update.batch = req.body.batch;
+      update.graduationBatch = req.body.batch;
+    } else if (Object.hasOwn(update, "graduationBatch")) {
+      update.batch = update.graduationBatch;
+    }
     if (update.skills && (!Array.isArray(update.skills) || update.skills.some((s) => typeof s !== "string"))) return res.status(400).json({ error: { message: "Skills must be an array of text", status: 400 } });
-    const p = await StudentProfile.findOneAndUpdate({ user: req.session.user.id }, update, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true }).populate("user", "name email role");
-    res.json(shape(p));
+
+    let profile = await StudentProfile.findOne({ user: req.session.user.id });
+    if (!profile) profile = await StudentProfile.create({ user: req.session.user.id });
+
+    if (Object.hasOwn(req.body, "name")) {
+      const user = await User.findByIdAndUpdate(req.session.user.id, { name: req.body.name }, { new: true, runValidators: true });
+      req.session.user.name = user.name;
+      update.name = user.name;
+    }
+
+    const p = await StudentProfile.findByIdAndUpdate(profile._id, update, { new: true, runValidators: true })
+      .populate("user", "name email role");
+    const data = p.toObject();
+    res.status(200).json({
+      success: true,
+      message: "Profile updated",
+      data: {
+        _id: data._id,
+        user: data.user,
+        name: data.name,
+        phone: data.phone,
+        department: data.department,
+        batch: data.batch,
+        skills: data.skills,
+        backlogs: data.backlogs,
+        __v: data.__v,
+      },
+    });
   } catch (error) { next(error); }
 }
 
