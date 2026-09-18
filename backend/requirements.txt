@@ -1,0 +1,5 @@
+pdfplumber
+python-docx
+spacy
+# Install the local English NER model once after installing these packages:
+# python -m spacy download en_core_web_sm

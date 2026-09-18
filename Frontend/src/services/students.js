@@ -49,6 +49,19 @@ export function uploadResume(file) {
   return request("/students/me/resume", { method: "POST", body: form });
 }
 
+// These use the additive extraction API. The legacy resume methods above stay
+// available for existing callers and records.
+export function getExtractedResume(userId) {
+  return request(`/api/resumes/${userId}`);
+}
+
+export function uploadResumeForExtraction(file, userId) {
+  const form = new FormData();
+  form.append("resume", file);
+  form.append("user_id", userId);
+  return request("/api/resumes/upload", { method: "POST", body: form });
+}
+
 // This loads the semester marksheets for the signed in student.
 // The subjects, marks and credits come back from the backend and
 // the app only does the SGPA and CGPA maths on top of them.
