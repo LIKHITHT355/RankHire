@@ -31,7 +31,7 @@ export function getMyProfile() {
 // Only the fields that were edited are sent across.
 // The backend decides what is allowed to change.
 export function updateProfile(profile) {
-  return request("/students/me", { method: "PATCH", body: profile });
+  return request("/api/student/profile", { method: "POST", body: profile });
 }
 
 // This reads the current resume status for the signed in student.
@@ -47,6 +47,19 @@ export function uploadResume(file) {
   const form = new FormData();
   form.append("resume", file);
   return request("/students/me/resume", { method: "POST", body: form });
+}
+
+// These use the additive extraction API. The legacy resume methods above stay
+// available for existing callers and records.
+export function getExtractedResume(userId) {
+  return request(`/api/resumes/${userId}`);
+}
+
+export function uploadResumeForExtraction(file, userId) {
+  const form = new FormData();
+  form.append("resume", file);
+  form.append("user_id", userId);
+  return request("/api/resumes/upload", { method: "POST", body: form });
 }
 
 // This loads the semester marksheets for the signed in student.

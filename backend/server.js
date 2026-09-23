@@ -13,6 +13,7 @@ import shortlistRoutes from "./routes/shortlists.routes.js";
 import settingsRoutes from "./routes/settings.routes.js";
 import companyRoutes from "./routes/companies.routes.js";
 import applicationRoutes from "./routes/applications.routes.js";
+import resumeRoutes from "./routes/resumes.routes.js";
 
 const app = express();
 const production = process.env.NODE_ENV === "production";
@@ -28,7 +29,8 @@ app.use(express.json());
 // SameSite lax supports normal same-site frontend and API development.
 app.use(session({ name: "rankhire.sid", secret: process.env.SESSION_SECRET || "development-secret-change-me", resave: false, saveUninitialized: false, store: process.env.MONGODB_URI ? MongoStore.create({ mongoUrl: process.env.MONGODB_URI }) : undefined, cookie: { httpOnly: true, secure: production, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 } }));
 app.use("/uploads", express.static("uploads"));
-app.use("/auth", authRoutes); app.use("/students", studentRoutes); app.use("/announcements", announcementRoutes); app.use("/jobs", jobRoutes); app.use("/applications", applicationRoutes); app.use("/ranking", rankingRoutes); app.use("/shortlists", shortlistRoutes); app.use("/settings", settingsRoutes); app.use("/companies", companyRoutes);
+app.use("/auth", authRoutes); app.use("/students", studentRoutes); app.use("/api/student", studentRoutes); app.use("/announcements", announcementRoutes); app.use("/jobs", jobRoutes); app.use("/applications", applicationRoutes); app.use("/ranking", rankingRoutes); app.use("/shortlists", shortlistRoutes); app.use("/settings", settingsRoutes); app.use("/companies", companyRoutes);
+app.use("/api/resumes", resumeRoutes);
 
 // This turns unexpected errors into the API's documented error shape.
 // Validation errors become a helpful 400 instead of a generic server error.

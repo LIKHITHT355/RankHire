@@ -42,15 +42,15 @@ function StudentProfile() {
     setError("");
     setSaving(true);
     try {
-      await updateProfile({
+      const result = await updateProfile({
         ...form,
         skills: form.skills
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
       });
-      setMessage("Profile saved.");
-      state.reload();
+      state.setData(result.data);
+      setMessage(result.message);
     } catch (err) {
       setError(err.message || "Could not save your profile.");
     } finally {

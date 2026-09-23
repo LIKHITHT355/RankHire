@@ -8,6 +8,7 @@ const router = Router();
 const storage = multer.diskStorage({ destination: "uploads/", filename: (_req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`) });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 }, fileFilter: (_req, file, cb) => cb(null, ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(file.mimetype)) });
 router.get("/", requireAuth, requireRole("tpo"), list);
+router.post("/profile", requireAuth, requireRole("student"), updateMine);
 router.get("/me", requireAuth, requireRole("student"), mine);
 router.patch("/me", requireAuth, requireRole("student"), updateMine);
 router.get("/me/resume", requireAuth, requireRole("student"), mine);
