@@ -118,6 +118,52 @@ export async function uploadResume(req, res, next) {
 export async function marksheets(req, res, next) {
   try {
     const p = await StudentProfile.findOne({ user: req.session.user.id });
-    res.json(p ? await Marksheet.find({ student: p._id }).sort({ semester: 1 }) : []);
+    // New calculator records live on the profile. Include legacy Marksheet
+    // documents too, so adding a calculator entry never hides prior results.
+    if (!p) return res.json([]);
+    const calculated = (p.semesters || []).map((semester) => ({
+      semester: semester.semesterNumber,
+      subjects: semester.subjects,
+      sgpa: semester.sgpa,
+    }));
+    const calculatedSemesters = new Set(calculated.map((semester) => semester.semester));
+    const legacy = await Marksheet.find({ student: p._id }).sort({ semester: 1 });
+    res.json([...legacy.filter((semester) => !calculatedSemesters.has(semester.semester)), ...calculated]
+      .sort((a, b) => a.semester - b.semester));
   } catch (error) { next(error); }
+}
+
+// Stores one calculated semester and lets the model recompute the weighted CGPA.
+// Values are recalculated server-side so a client cannot save an invalid score.
+export async function saveSgpa(req, res, next) {
+  try {
+    const semesterNumber = Number(req.body.semesterNumber);
+    const subjects = Array.isArray(req.body.subjects) ? req.body.subjects : [];
+    if (!Number.isInteger(semesterNumber) || semesterNumber < 1 || semesterNumber > 8) {
+      return res.status(400).json({ error: { message: "Semester must be between 1 and 8.", status: 400 } });
+    }
+    if (!subjects.length) return res.status(400).json({ error: { message: "Add at least one subject before saving.", status: 400 } });
+
+    const normalised = subjects.map((subject) => {
+      const credits = Number(subject.credits);
+      const marks = Number(subject.marks);
+      if (!Number.isFinite(credits) || credits <= 0 || !Number.isFinite(marks) || marks < 0 || marks > 100) throw new Error("Every subject needs valid credits and marks between 0 and 100.");
+      const gradePoint = marks >= 90 ? 10 : marks >= 80 ? 9 : marks >= 70 ? 8 : marks >= 60 ? 7 : marks >= 55 ? 6 : marks >= 50 ? 5 : marks >= 40 ? 4 : 0;
+      const grade = marks >= 90 ? "O" : marks >= 80 ? "A+" : marks >= 70 ? "A" : marks >= 60 ? "B+" : marks >= 55 ? "B" : marks >= 50 ? "C" : marks >= 40 ? "P" : "F";
+      return { code: String(subject.code || "").trim(), name: String(subject.name || "").trim(), credits, marks, grade, gradePoint };
+    });
+    const totalCredits = normalised.reduce((sum, subject) => sum + subject.credits, 0);
+    const sgpa = Number((normalised.reduce((sum, subject) => sum + subject.credits * subject.gradePoint, 0) / totalCredits).toFixed(2));
+    let profile = await StudentProfile.findOne({ user: req.session.user.id });
+    if (!profile) profile = new StudentProfile({ user: req.session.user.id });
+    const record = { semesterNumber, sgpa, totalCredits, subjects: normalised };
+    const index = profile.semesters.findIndex((semester) => semester.semesterNumber === semesterNumber);
+    if (index >= 0) profile.semesters[index] = record;
+    else profile.semesters.push(record);
+    await profile.save();
+    res.json({ success: true, semester: record, cgpa: profile.cgpa });
+  } catch (error) {
+    if (error.message?.startsWith("Every subject")) return res.status(400).json({ error: { message: error.message, status: 400 } });
+    next(error);
+  }
 }

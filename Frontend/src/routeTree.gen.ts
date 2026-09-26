@@ -17,6 +17,7 @@ import { Route as CompanyDashboardRouteImport } from './routes/company.dashboard
 import { Route as CompanyPostJobRouteImport } from './routes/company.post-job'
 import { Route as StudentAnnouncementsRouteImport } from './routes/student.announcements'
 import { Route as StudentApplicationsRouteImport } from './routes/student.applications'
+import { Route as StudentCalculateSgpaRouteImport } from './routes/student.calculate-sgpa'
 import { Route as StudentDashboardRouteImport } from './routes/student.dashboard'
 import { Route as StudentJobsRouteImport } from './routes/student.jobs'
 import { Route as StudentMarksheetsRouteImport } from './routes/student.marksheets'
@@ -69,6 +70,11 @@ const StudentAnnouncementsRoute = StudentAnnouncementsRouteImport.update({
 const StudentApplicationsRoute = StudentApplicationsRouteImport.update({
   id: '/student/applications',
   path: '/student/applications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentCalculateSgpaRoute = StudentCalculateSgpaRouteImport.update({
+  id: '/student/calculate-sgpa',
+  path: '/student/calculate-sgpa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentDashboardRoute = StudentDashboardRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/company/post-job': typeof CompanyPostJobRoute
   '/student/announcements': typeof StudentAnnouncementsRoute
   '/student/applications': typeof StudentApplicationsRoute
+  '/student/calculate-sgpa': typeof StudentCalculateSgpaRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/jobs': typeof StudentJobsRoute
   '/student/marksheets': typeof StudentMarksheetsRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/company/post-job': typeof CompanyPostJobRoute
   '/student/announcements': typeof StudentAnnouncementsRoute
   '/student/applications': typeof StudentApplicationsRoute
+  '/student/calculate-sgpa': typeof StudentCalculateSgpaRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/jobs': typeof StudentJobsRoute
   '/student/marksheets': typeof StudentMarksheetsRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/company/post-job': typeof CompanyPostJobRoute
   '/student/announcements': typeof StudentAnnouncementsRoute
   '/student/applications': typeof StudentApplicationsRoute
+  '/student/calculate-sgpa': typeof StudentCalculateSgpaRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/jobs': typeof StudentJobsRoute
   '/student/marksheets': typeof StudentMarksheetsRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/company/post-job'
     | '/student/announcements'
     | '/student/applications'
+    | '/student/calculate-sgpa'
     | '/student/dashboard'
     | '/student/jobs'
     | '/student/marksheets'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/company/post-job'
     | '/student/announcements'
     | '/student/applications'
+    | '/student/calculate-sgpa'
     | '/student/dashboard'
     | '/student/jobs'
     | '/student/marksheets'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/company/post-job'
     | '/student/announcements'
     | '/student/applications'
+    | '/student/calculate-sgpa'
     | '/student/dashboard'
     | '/student/jobs'
     | '/student/marksheets'
@@ -288,6 +300,7 @@ export interface RootRouteChildren {
   CompanyPostJobRoute: typeof CompanyPostJobRoute
   StudentAnnouncementsRoute: typeof StudentAnnouncementsRoute
   StudentApplicationsRoute: typeof StudentApplicationsRoute
+  StudentCalculateSgpaRoute: typeof StudentCalculateSgpaRoute
   StudentDashboardRoute: typeof StudentDashboardRoute
   StudentJobsRoute: typeof StudentJobsRoute
   StudentMarksheetsRoute: typeof StudentMarksheetsRoute
@@ -359,6 +372,13 @@ declare module '@tanstack/react-router' {
       path: '/student/applications'
       fullPath: '/student/applications'
       preLoaderRoute: typeof StudentApplicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student/calculate-sgpa': {
+      id: '/student/calculate-sgpa'
+      path: '/student/calculate-sgpa'
+      fullPath: '/student/calculate-sgpa'
+      preLoaderRoute: typeof StudentCalculateSgpaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student/dashboard': {
@@ -464,6 +484,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompanyPostJobRoute: CompanyPostJobRoute,
   StudentAnnouncementsRoute: StudentAnnouncementsRoute,
   StudentApplicationsRoute: StudentApplicationsRoute,
+  StudentCalculateSgpaRoute: StudentCalculateSgpaRoute,
   StudentDashboardRoute: StudentDashboardRoute,
   StudentJobsRoute: StudentJobsRoute,
   StudentMarksheetsRoute: StudentMarksheetsRoute,

@@ -64,10 +64,11 @@ export async function request(path, options = {}) {
   }
   if (!response.ok) {
     const message =
-      (data && typeof data === "object" && (data.message || data.error)) ||
+      (data && typeof data === "object" && (data.detail || data.message || data.error?.message || data.error)) ||
       (typeof data === "string" && data) ||
       `Request failed with status ${response.status}.`;
-    throw new ApiError(message, response.status);
+    const detail = data && typeof data === "object" && data.raw ? `${message}: ${data.raw}` : message;
+    throw new ApiError(detail, response.status);
   }
   return data;
 }

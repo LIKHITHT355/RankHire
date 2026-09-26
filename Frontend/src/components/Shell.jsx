@@ -21,6 +21,7 @@ const NAV = {
     { to: "/student/profile", label: "Profile" },
     { to: "/student/resume", label: "Resume" },
     { to: "/student/marksheets", label: "Marksheets" },
+    { to: "/student/calculate-sgpa", label: "Calculate SGPA" },
     { to: "/student/jobs", label: "Opportunities" },
     { to: "/student/applications", label: "Applications" },
     { to: "/student/announcements", label: "Announcements" },

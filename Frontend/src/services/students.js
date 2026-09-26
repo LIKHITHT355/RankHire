@@ -68,3 +68,14 @@ export function uploadResumeForExtraction(file, userId) {
 export function getMarksheets() {
   return request("/students/me/marksheets");
 }
+
+export function extractMarks(file, courses) {
+  const form = new FormData();
+  form.append("marksheet", file);
+  form.append("courses", JSON.stringify(courses));
+  return request("/api/marks/extract-marks", { method: "POST", body: form });
+}
+
+export function saveSgpa(record) {
+  return request("/api/student/save-sgpa", { method: "PUT", body: record });
+}
