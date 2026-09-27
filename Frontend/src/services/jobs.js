@@ -3,14 +3,13 @@
 // read the resulting lists through these functions.
 
 import { request } from "./api.js";
+import { toQueryString } from "../lib/query.js";
 
 // This loads job postings from the backend.
 // Filters can narrow the list, for example only jobs
 // posted by the signed in company.
 export function getJobs(filters = {}) {
-  const query = new URLSearchParams(
-    Object.entries(filters).filter(([, v]) => v !== "" && v !== undefined && v !== null),
-  ).toString();
+  const query = toQueryString(filters);
   return request(`/jobs${query ? `?${query}` : ""}`);
 }
 

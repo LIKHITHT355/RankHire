@@ -4,6 +4,8 @@ import { Shell } from "../components/Shell.jsx";
 import { PageHeader, Panel, Field, Notice } from "../components/Primitives.jsx";
 import { NotConnected, Skeleton, ErrorCard } from "../components/DataState.jsx";
 import { useApiData } from "../hooks/useApiData.js";
+import { useCachedApiData } from "../hooks/useCachedApiData.js";
+import { studentQueryKeys } from "../lib/queryKeys.js";
 import { getResume, uploadResume } from "../services/students.js";
 import { getExtractedResume } from "../services/students.js";
 import { getSession } from "../services/auth.js";
@@ -34,38 +36,94 @@ async function loadExtractedResume() {
 }
 
 function StudentResumeExtraction() {
-  const state = useApiData(() => loadExtractedResume(), []);
+  const state = useCachedApiData(studentQueryKeys.resume, loadExtractedResume);
   const resume = state.data?.resume;
   const userId = state.data?.user?.id;
 
   return (
     <Shell role="student" breadcrumb="Resume">
-      <PageHeader eyebrow="Documents" title="Resume" description="Your file is parsed locally, then removed. Only extracted information is kept." />
+      <PageHeader
+        eyebrow="Documents"
+        title="Resume"
+        description="Your file is parsed locally, then removed. Only extracted information is kept."
+      />
       {!state.configured ? <NotConnected /> : null}
       {state.configured && state.loading ? <Skeleton rows={3} /> : null}
-      {state.configured && state.error ? <ErrorCard message={state.error} onRetry={state.reload} /> : null}
+      {state.configured && state.error ? (
+        <ErrorCard message={state.error} onRetry={state.reload} />
+      ) : null}
       {state.configured && !state.loading && !state.error ? (
         <div className="grid gap-6 lg:grid-cols-2">
           {resume ? (
             <>
               <Panel title="Extracted personal information">
                 <dl className="grid gap-3 text-sm sm:grid-cols-2">
-                  <div><dt className="text-xs text-muted-foreground">Name</dt><dd>{resume.personal_info?.full_name || "Not found"}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Email</dt><dd>{resume.personal_info?.email || "Not found"}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Phone</dt><dd>{resume.personal_info?.phone || "Not found"}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Location</dt><dd>{resume.personal_info?.location || "Not found"}</dd></div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Name</dt>
+                    <dd>{resume.personal_info?.full_name || "Not found"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Email</dt>
+                    <dd>{resume.personal_info?.email || "Not found"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Phone</dt>
+                    <dd>{resume.personal_info?.phone || "Not found"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Location</dt>
+                    <dd>{resume.personal_info?.location || "Not found"}</dd>
+                  </div>
                 </dl>
               </Panel>
-              <Panel title="Extracted skills" description={resume.extracted_at ? `Extracted ${new Date(resume.extracted_at).toLocaleDateString()}` : undefined}>
-                {resume.skills?.length ? <div className="flex flex-wrap gap-2">
-                  {resume.skills.map((skill) => <Badge key={`${skill.skill_category}-${skill.skill_name}`} tone={skill.skill_category === "technical" ? "merit" : "neutral"}>
-                    {skill.skill_name} · {skill.skill_category} · {Math.round(skill.confidence * 100)}%
-                  </Badge>)}
-                </div> : <p className="text-sm text-muted-foreground">No predefined skills were found in this resume.</p>}
+              <Panel
+                title="Extracted skills"
+                description={
+                  resume.extracted_at
+                    ? `Extracted ${new Date(resume.extracted_at).toLocaleDateString()}`
+                    : undefined
+                }
+              >
+                {resume.skills?.length ? (
+                  <div className="flex flex-wrap gap-2">
+                    {resume.skills.map((skill) => (
+                      <Badge
+                        key={`${skill.skill_category}-${skill.skill_name}`}
+                        tone={skill.skill_category === "technical" ? "merit" : "neutral"}
+                      >
+                        {skill.skill_name} · {skill.skill_category} ·{" "}
+                        {Math.round(skill.confidence * 100)}%
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No predefined skills were found in this resume.
+                  </p>
+                )}
               </Panel>
-              <div className="lg:col-span-2"><ResumeUpload userId={userId} title="Replace extracted resume" onUploaded={(nextResume) => state.setData({ ...state.data, resume: nextResume })} /></div>
+              <div className="lg:col-span-2">
+                <ResumeUpload
+                  userId={userId}
+                  title="Replace extracted resume"
+                  onUploaded={(nextResume) => {
+                    state.setData((current) => ({ ...current, resume: nextResume }));
+                    state.invalidate();
+                  }}
+                />
+              </div>
             </>
-          ) : <div className="lg:col-span-2"><ResumeUpload userId={userId} onUploaded={(nextResume) => state.setData({ ...state.data, resume: nextResume })} /></div>}
+          ) : (
+            <div className="lg:col-span-2">
+              <ResumeUpload
+                userId={userId}
+                onUploaded={(nextResume) => {
+                  state.setData((current) => ({ ...current, resume: nextResume }));
+                  state.invalidate();
+                }}
+              />
+            </div>
+          )}
         </div>
       ) : null}
     </Shell>
@@ -111,7 +169,9 @@ function StudentResume() {
 
       {!state.configured ? <NotConnected /> : null}
       {state.configured && state.loading ? <Skeleton rows={2} /> : null}
-      {state.configured && state.error ? <ErrorCard message={state.error} onRetry={state.reload} /> : null}
+      {state.configured && state.error ? (
+        <ErrorCard message={state.error} onRetry={state.reload} />
+      ) : null}
 
       {state.configured && !state.loading && !state.error ? (
         <div className="grid gap-6 lg:grid-cols-2">

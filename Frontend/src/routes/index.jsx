@@ -31,7 +31,7 @@ const ROLES = [
     icon: GraduationCap,
     title: "Students",
     body: "Keep your academic record, resume and applications in one place. See every opportunity you are eligible for, with the criteria stated plainly.",
-    points: ["Semester marksheets with SGPA and CGPA", "Resume on record", "Application status"],
+    points: ["SGPA calculation and academic records", "Resume on record", "Application status"],
   },
   {
     icon: ClipboardList,

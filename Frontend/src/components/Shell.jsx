@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Bell, LogOut, Menu, X, Circle } from "lucide-react";
 import { isApiConfigured } from "../services/api.js";
 import { logout } from "../services/auth.js";
@@ -20,7 +21,6 @@ const NAV = {
     { to: "/student/dashboard", label: "Dashboard" },
     { to: "/student/profile", label: "Profile" },
     { to: "/student/resume", label: "Resume" },
-    { to: "/student/marksheets", label: "Marksheets" },
     { to: "/student/calculate-sgpa", label: "Calculate SGPA" },
     { to: "/student/jobs", label: "Opportunities" },
     { to: "/student/applications", label: "Applications" },
@@ -57,6 +57,7 @@ function ConnectionDot() {
 export function Shell({ role, breadcrumb, children }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const items = NAV[role] || [];
 
   // This ends the session by asking the backend to sign the
@@ -68,6 +69,7 @@ export function Shell({ role, breadcrumb, children }) {
     } catch {
       // Nothing to clean up locally, the session lives in a cookie.
     }
+    queryClient.clear();
     navigate({ to: "/login" });
   }
 
@@ -119,7 +121,11 @@ export function Shell({ role, breadcrumb, children }) {
           </p>
           <div className="ml-auto flex items-center gap-3">
             <ConnectionDot />
-            <button type="button" className="rh-btn rh-btn-ghost px-2 py-2" aria-label="Notifications">
+            <button
+              type="button"
+              className="rh-btn rh-btn-ghost px-2 py-2"
+              aria-label="Notifications"
+            >
               <Bell className="h-4 w-4" aria-hidden="true" />
             </button>
             <span className="hidden h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground sm:flex">
