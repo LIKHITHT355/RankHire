@@ -20,6 +20,7 @@ export const Route = createFileRoute("/company/post-job")({
 
 const EMPTY = {
   title: "",
+  industry: "",
   description: "",
   location: "",
   type: "Full time",
@@ -86,6 +87,15 @@ function PostJob() {
           </Field>
           <Field label="Location" htmlFor="location">
             <input id="location" className="rh-input" value={form.location} onChange={set("location")} />
+          </Field>
+          <Field label="Industry" htmlFor="industry">
+            <input
+              id="industry"
+              className="rh-input"
+              value={form.industry}
+              onChange={set("industry")}
+              placeholder="e.g. Information technology"
+            />
           </Field>
           <div className="sm:col-span-2">
             <Field label="Description" htmlFor="description">

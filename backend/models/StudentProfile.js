@@ -21,7 +21,7 @@ const semesterSchema = new mongoose.Schema({
 
 const schema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
-  name: String, department: String, batch: String, graduationBatch: String, phone: String, skills: [String],
+  name: String, usn: { type: String, trim: true }, department: String, batch: String, graduationBatch: String, phone: String, skills: [String],
   cgpa: { type: Number, min: 0, max: 10, default: 0 }, backlogs: { type: Number, min: 0, default: 0 },
   semesters: { type: [semesterSchema], default: [] },
   resumeUrl: String, resumeFileName: String,

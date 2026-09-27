@@ -21,7 +21,7 @@ export const Route = createFileRoute("/tpo/students")({
 });
 
 const COLUMNS = [
-  { key: "roll", label: "Roll" },
+  { key: "usn", label: "USN" },
   { key: "name", label: "Name" },
   { key: "email", label: "Email" },
   { key: "department", label: "Department" },
@@ -62,10 +62,10 @@ function TpoStudents() {
 
       <DataState state={state} emptyMessage="No students are registered yet." skeletonRows={6}>
         {(students) => (
-          <TableShell columns={["Roll", "Name", "Email", "Department", "Batch", "CGPA", "Backlogs"]}>
+          <TableShell columns={["USN", "Name", "Email", "Department", "Batch", "CGPA", "Backlogs"]}>
             {students.map((s) => (
               <tr key={s.id || s._id || s.email} className="border-b border-rule/60 last:border-0">
-                <td className="numeral px-4 py-3">{s.roll || "—"}</td>
+                <td className="numeral px-4 py-3">{s.usn || "—"}</td>
                 <td className="px-4 py-3">{s.name || "—"}</td>
                 <td className="px-4 py-3 text-muted-foreground">{s.email || "—"}</td>
                 <td className="px-4 py-3">{s.department || "—"}</td>

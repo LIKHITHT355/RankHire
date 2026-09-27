@@ -1,5 +1,6 @@
 import Job from "../models/Job.js";
 import Application from "../models/Application.js";
+import CompanyProfile from "../models/CompanyProfile.js";
 import StudentProfile from "../models/StudentProfile.js";
 
 const notFound = (res, name) => res.status(404).json({ error: { message: `${name} not found`, status: 404 } });
@@ -12,7 +13,27 @@ export async function list(req, res, next) {
     const query = req.session.user.role === "student" ? { status: "open" } : req.session.user.role === "company" ? { postedBy: req.session.user.id } : {};
     if (req.query.status) query.status = req.query.status;
     if (req.query.search) query.$or = ["title", "location", "skills"].map((key) => ({ [key]: new RegExp(req.query.search, "i") }));
-    res.json(await Job.find(query).populate("postedBy", "name email").sort({ createdAt: -1 }));
+    const jobs = await Job.find(query).populate("postedBy", "name email").sort({ createdAt: -1 });
+    const jobIds = jobs.map((job) => job._id);
+    const counts = jobIds.length ? await Application.aggregate([
+      { $match: { job: { $in: jobIds } } },
+      {
+        $group: {
+          _id: "$job",
+          applicantCount: { $sum: 1 },
+          shortlistedCount: { $sum: { $cond: [{ $eq: ["$status", "shortlisted"] }, 1, 0] } },
+        },
+      },
+    ]) : [];
+    const countsByJob = new Map(counts.map((count) => [String(count._id), count]));
+    res.json(jobs.map((job) => {
+      const count = countsByJob.get(String(job._id));
+      return {
+        ...job.toObject(),
+        applicantCount: count?.applicantCount || 0,
+        shortlistedCount: count?.shortlistedCount || 0,
+      };
+    }));
   } catch (error) { next(error); }
 }
 
@@ -33,10 +54,18 @@ export async function getOne(req, res, next) {
 // Mongoose validates remaining values such as dates and numeric CGPA.
 export async function create(req, res, next) {
   try {
-    const { title, description, location, employmentType, skills, eligibility, minCgpa, deadline, status } = req.body;
+    const { title, description, location, industry, employmentType, skills, eligibility, minCgpa, deadline, status } = req.body;
     if (!title || !description) return res.status(400).json({ error: { message: "Title and description are required", status: 400 } });
     if (skills !== undefined && !Array.isArray(skills)) return res.status(400).json({ error: { message: "Skills must be an array", status: 400 } });
-    res.status(201).json(await Job.create({ title, description, location, employmentType, skills, eligibility, minCgpa, deadline, status, postedBy: req.session.user.id }));
+    const job = await Job.create({ title, description, location, industry, employmentType, skills, eligibility, minCgpa, deadline, status, postedBy: req.session.user.id });
+    if (typeof industry === "string" && industry.trim()) {
+      await CompanyProfile.findOneAndUpdate(
+        { user: req.session.user.id },
+        { $set: { industry: industry.trim() } },
+        { upsert: true },
+      );
+    }
+    res.status(201).json(job);
   } catch (error) { next(error); }
 }
 
@@ -60,7 +89,22 @@ export async function apply(req, res, next) {
 // Results are newest first so recent applications are immediately visible.
 // The session identity prevents reading any other student's application list.
 export async function myApplications(req, res, next) {
-  try { const student = await StudentProfile.findOne({ user: req.session.user.id }); res.json(student ? await Application.find({ student: student._id }).populate("job").sort({ appliedAt: -1 }) : []); } catch (error) { next(error); }
+  try {
+    const student = await StudentProfile.findOne({ user: req.session.user.id });
+    if (!student) return res.json([]);
+    const applications = await Application.find({ student: student._id })
+      .populate({ path: "job", populate: { path: "postedBy", select: "name" } })
+      .sort({ appliedAt: -1 });
+    res.json(applications.map((application) => {
+      const data = application.toObject();
+      return {
+        ...data,
+        jobTitle: data.job?.title,
+        company: data.job?.postedBy?.name,
+        createdAt: data.appliedAt,
+      };
+    }));
+  } catch (error) { next(error); }
 }
 
 // This gives the job owner or the placement office a list of applicants.
@@ -70,6 +114,21 @@ export async function applicants(req, res, next) {
   try {
     const job = await Job.findById(req.params.id); if (!job) return notFound(res, "Job");
     if (req.session.user.role === "company" && String(job.postedBy) !== req.session.user.id) return res.status(403).json({ error: { message: "You do not have permission for this action", status: 403 } });
-    res.json(await Application.find({ job: job._id }).populate({ path: "student", populate: { path: "user", select: "name email" } }).sort({ appliedAt: -1 }));
+    const applications = await Application.find({ job: job._id })
+      .populate({ path: "student", populate: { path: "user", select: "name email" } })
+      .sort({ appliedAt: -1 });
+    res.json(applications.map((application) => {
+      const data = application.toObject();
+      const student = data.student || {};
+      return {
+        ...data,
+        name: student.name ?? student.user?.name,
+        email: student.email ?? student.user?.email,
+        department: student.department,
+        cgpa: student.cgpa,
+        backlogs: student.backlogs,
+        usn: student.usn,
+      };
+    }));
   } catch (error) { next(error); }
 }

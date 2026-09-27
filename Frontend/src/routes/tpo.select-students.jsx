@@ -24,7 +24,7 @@ export const Route = createFileRoute("/tpo/select-students")({
 const COLUMNS = [
   { key: "rank", label: "Rank" },
   { key: "name", label: "Student" },
-  { key: "roll", label: "Roll" },
+  { key: "usn", label: "USN" },
   { key: "email", label: "Email" },
   { key: "department", label: "Department" },
   { key: "cgpa", label: "CGPA" },
@@ -129,13 +129,13 @@ function SelectStudents() {
           <EmptyState message="No students match these filters." />
         ) : null}
         {isApiConfigured() && !loading && !error && rows && rows.length > 0 ? (
-          <TableShell columns={["Rank", "Student", "Roll / Email", "Department", "CGPA", "Backlogs", "Eligible"]}>
+          <TableShell columns={["Rank", "Student", "USN / Email", "Department", "CGPA", "Backlogs", "Eligible"]}>
             {rows.map((s) => (
               <tr key={s.id || s._id || s.email} className="border-b border-rule/60 last:border-0">
                 <td className="numeral px-4 py-3">{s.rank ?? "—"}</td>
                 <td className="px-4 py-3">{s.name || "—"}</td>
                 <td className="px-4 py-3">
-                  <span className="numeral">{s.roll || "—"}</span>
+                  <span className="numeral">{s.usn || "—"}</span>
                   <span className="block text-xs text-muted-foreground">{s.email || "—"}</span>
                 </td>
                 <td className="px-4 py-3">{s.department || "—"}</td>

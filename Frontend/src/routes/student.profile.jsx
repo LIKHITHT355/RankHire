@@ -41,6 +41,7 @@ function StudentProfile() {
   );
   const [form, setForm] = useState({
     name: "",
+    usn: "",
     phone: "",
     email: "",
     location: "",
@@ -58,6 +59,7 @@ function StudentProfile() {
     if (state.data) {
       setForm((current) => ({
         name: state.data.name ?? "",
+        usn: state.data.usn ?? "",
         phone: state.data.phone ?? "",
         email: current.email,
         location: current.location,
@@ -136,6 +138,14 @@ function StudentProfile() {
                   className="rh-input"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+              </Field>
+              <Field label="USN" htmlFor="usn">
+                <input
+                  id="usn"
+                  className="rh-input"
+                  value={form.usn}
+                  onChange={(e) => setForm({ ...form, usn: e.target.value })}
                 />
               </Field>
               <Field label="Contact number" htmlFor="phone">

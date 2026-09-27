@@ -64,7 +64,7 @@ function StudentDashboard() {
       <div className="dashboard-stats mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Profile completion"
-          value={d?.profile?.completion !== undefined ? `${d.profile.completion}%` : null}
+          value={d?.profile?.profileCompletion !== undefined ? `${d.profile.profileCompletion}%` : null}
         />
         <StatCard label="Open opportunities" value={d ? d.jobs.length : null} />
         <StatCard label="Applications sent" value={d ? d.applications.length : null} />

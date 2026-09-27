@@ -13,6 +13,7 @@ const shape = (p) => {
     // Older profiles used only the linked user name and graduationBatch.
     // Keep them readable while new saves persist the frontend field names.
     name: data.name ?? data.user?.name,
+    email: data.email ?? data.user?.email,
     batch: data.batch ?? data.graduationBatch,
     profileCompletion: profileCompletion(p),
   };
@@ -60,7 +61,7 @@ export async function mine(req, res, next) {
 // Basic number validation is delegated to Mongoose before saving.
 export async function updateMine(req, res, next) {
   try {
-    const allowed = ["department", "graduationBatch", "phone", "skills", "cgpa", "backlogs"];
+    const allowed = ["usn", "department", "graduationBatch", "phone", "skills", "cgpa", "backlogs"];
     const update = Object.fromEntries(Object.entries(req.body).filter(([key]) => allowed.includes(key)));
     if (Object.hasOwn(req.body, "batch")) {
       update.batch = req.body.batch;
@@ -89,6 +90,7 @@ export async function updateMine(req, res, next) {
         _id: data._id,
         user: data.user,
         name: data.name,
+        usn: data.usn,
         phone: data.phone,
         department: data.department,
         batch: data.batch,
