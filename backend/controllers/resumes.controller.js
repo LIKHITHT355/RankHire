@@ -15,14 +15,29 @@ function runParser(filePath) {
     let errorOutput = "";
     child.stdout.on("data", (data) => { output += data; });
     child.stderr.on("data", (data) => { errorOutput += data; });
-    child.on("error", () => reject(new Error("Python is not available. Install Python and the resume parser requirements.")));
+    child.on("error", (error) => {
+      console.error("[resume-parser] Failed to start Python subprocess:", error);
+      reject(new Error("Could not start the Python resume parser. Check that Python is installed and PYTHON_COMMAND is configured correctly."));
+    });
     child.on("close", (code) => {
+      if (code !== 0) {
+        const details = errorOutput.trim() || output.trim() || "No output from the Python process.";
+        console.error(`[resume-parser] Python exited with code ${code}. stdout: ${output.trim() || "<empty>"} stderr: ${errorOutput.trim() || "<empty>"}`);
+        try {
+          const result = JSON.parse(output);
+          return reject(new Error(result.error || details));
+        } catch {
+          return reject(new Error(details));
+        }
+      }
       try {
         const result = JSON.parse(output);
-        if (code === 0 && !result.error) return resolve(result);
-        reject(new Error(result.error || errorOutput || "Resume extraction failed."));
+        if (!result.error) return resolve(result);
+        console.error("[resume-parser] Extraction returned an error:", result.error);
+        reject(new Error(result.error));
       } catch {
-        reject(new Error(errorOutput || "Resume extraction returned an invalid result."));
+        console.error(`[resume-parser] Invalid JSON from Python. stdout: ${output.trim() || "<empty>"} stderr: ${errorOutput.trim() || "<empty>"}`);
+        reject(new Error(errorOutput.trim() || "Resume extraction returned an invalid result."));
       }
     });
   });
@@ -55,6 +70,8 @@ export async function upload(req, res, next) {
     let extracted;
     try {
       extracted = await runParser(req.file.path);
+    } catch (error) {
+      return res.status(500).json({ error: { message: `Resume extraction failed: ${error.message}`, status: 500 } });
     } finally {
       await fs.unlink(req.file.path).catch(() => {});
     }

@@ -41,10 +41,23 @@ def first_match(pattern, text, flags=0):
 
 def personal_info(text):
     # Loading locally keeps named-entity recognition entirely on this machine.
-    nlp = spacy.load("en_core_web_sm")
-    doc = nlp(text[:10000])
-    people = [entity.text.strip() for entity in doc.ents if entity.label_ == "PERSON"]
-    locations = [entity.text.strip() for entity in doc.ents if entity.label_ in {"GPE", "LOC"}]
+    # The model is installed separately from requirements.txt; keep resume
+    # extraction working when a deployment has installed spaCy but not its model.
+    try:
+        nlp = spacy.load("en_core_web_sm")
+        doc = nlp(text[:10000])
+        people = [entity.text.strip() for entity in doc.ents if entity.label_ == "PERSON"]
+        locations = [entity.text.strip() for entity in doc.ents if entity.label_ in {"GPE", "LOC"}]
+    except OSError as error:
+        if "en_core_web_sm" not in str(error):
+            raise
+        print(
+            "Warning: spaCy model 'en_core_web_sm' is missing; skipping name and location extraction. "
+            "Install it with: python -m spacy download en_core_web_sm",
+            file=sys.stderr,
+        )
+        people = []
+        locations = []
     email = first_match(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", text, re.I)
     phone = first_match(r"(?<!\d)(?:\+?\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-]?)?\d{3,5}[\s.-]\d{4}(?!\d)", text)
     return {
