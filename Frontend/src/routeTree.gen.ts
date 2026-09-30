@@ -19,7 +19,6 @@ import { Route as StudentAnnouncementsRouteImport } from './routes/student.annou
 import { Route as StudentApplicationsRouteImport } from './routes/student.applications'
 import { Route as StudentDashboardRouteImport } from './routes/student.dashboard'
 import { Route as StudentJobsRouteImport } from './routes/student.jobs'
-import { Route as StudentMarksheetsRouteImport } from './routes/student.marksheets'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentResumeRouteImport } from './routes/student.resume'
 import { Route as TpoAnnouncementsRouteImport } from './routes/tpo.announcements'
@@ -79,11 +78,6 @@ const StudentDashboardRoute = StudentDashboardRouteImport.update({
 const StudentJobsRoute = StudentJobsRouteImport.update({
   id: '/student/jobs',
   path: '/student/jobs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentMarksheetsRoute = StudentMarksheetsRouteImport.update({
-  id: '/student/marksheets',
-  path: '/student/marksheets',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentProfileRoute = StudentProfileRouteImport.update({
@@ -148,7 +142,6 @@ export interface FileRoutesByFullPath {
   '/student/applications': typeof StudentApplicationsRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/jobs': typeof StudentJobsRoute
-  '/student/marksheets': typeof StudentMarksheetsRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/resume': typeof StudentResumeRoute
   '/tpo/announcements': typeof TpoAnnouncementsRoute
@@ -171,7 +164,6 @@ export interface FileRoutesByTo {
   '/student/applications': typeof StudentApplicationsRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/jobs': typeof StudentJobsRoute
-  '/student/marksheets': typeof StudentMarksheetsRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/resume': typeof StudentResumeRoute
   '/tpo/announcements': typeof TpoAnnouncementsRoute
@@ -195,7 +187,6 @@ export interface FileRoutesById {
   '/student/applications': typeof StudentApplicationsRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/jobs': typeof StudentJobsRoute
-  '/student/marksheets': typeof StudentMarksheetsRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/resume': typeof StudentResumeRoute
   '/tpo/announcements': typeof TpoAnnouncementsRoute
@@ -220,7 +211,6 @@ export interface FileRouteTypes {
     | '/student/applications'
     | '/student/dashboard'
     | '/student/jobs'
-    | '/student/marksheets'
     | '/student/profile'
     | '/student/resume'
     | '/tpo/announcements'
@@ -243,7 +233,6 @@ export interface FileRouteTypes {
     | '/student/applications'
     | '/student/dashboard'
     | '/student/jobs'
-    | '/student/marksheets'
     | '/student/profile'
     | '/student/resume'
     | '/tpo/announcements'
@@ -266,7 +255,6 @@ export interface FileRouteTypes {
     | '/student/applications'
     | '/student/dashboard'
     | '/student/jobs'
-    | '/student/marksheets'
     | '/student/profile'
     | '/student/resume'
     | '/tpo/announcements'
@@ -290,7 +278,6 @@ export interface RootRouteChildren {
   StudentApplicationsRoute: typeof StudentApplicationsRoute
   StudentDashboardRoute: typeof StudentDashboardRoute
   StudentJobsRoute: typeof StudentJobsRoute
-  StudentMarksheetsRoute: typeof StudentMarksheetsRoute
   StudentProfileRoute: typeof StudentProfileRoute
   StudentResumeRoute: typeof StudentResumeRoute
   TpoAnnouncementsRoute: typeof TpoAnnouncementsRoute
@@ -373,13 +360,6 @@ declare module '@tanstack/react-router' {
       path: '/student/jobs'
       fullPath: '/student/jobs'
       preLoaderRoute: typeof StudentJobsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student/marksheets': {
-      id: '/student/marksheets'
-      path: '/student/marksheets'
-      fullPath: '/student/marksheets'
-      preLoaderRoute: typeof StudentMarksheetsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student/profile': {
@@ -466,7 +446,6 @@ const rootRouteChildren: RootRouteChildren = {
   StudentApplicationsRoute: StudentApplicationsRoute,
   StudentDashboardRoute: StudentDashboardRoute,
   StudentJobsRoute: StudentJobsRoute,
-  StudentMarksheetsRoute: StudentMarksheetsRoute,
   StudentProfileRoute: StudentProfileRoute,
   StudentResumeRoute: StudentResumeRoute,
   TpoAnnouncementsRoute: TpoAnnouncementsRoute,
