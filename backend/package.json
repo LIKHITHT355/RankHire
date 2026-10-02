@@ -14,14 +14,23 @@
     "dotenv": "^16.4.5",
     "express": "^5.1.0",
     "express-session": "^1.18.0",
+<<<<<<< HEAD
     "mongodb": "^7.6.0",
     "mongoose": "^9.10.2",
+=======
+    "imapflow": "^2.2.1",
+    "mailparser": "^3.9.33",
+    "mongoose": "^8.5.1",
+>>>>>>> origin/main
     "multer": "^2.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
+<<<<<<< HEAD
   },
   "allowScripts": {
     "bcrypt@6.0.0": true
+=======
+>>>>>>> origin/main
   }
 }

@@ -10,6 +10,14 @@ export async function list(req, res, next) {
     if (req.query.batch) query.graduationBatch = req.query.batch;
     if (req.query.minCgpa) query.cgpa = { $gte: Number(req.query.minCgpa) };
     const students = await StudentProfile.find(query).populate("user", "name email").sort({ cgpa: -1, _id: 1 });
-    res.json(students.map((student, index) => ({ ...student.toObject(), rank: index + 1 })));
+    res.json(students.map((student, index) => {
+      const data = student.toObject();
+      return {
+        ...data,
+        name: data.name ?? data.user?.name,
+        email: data.email ?? data.user?.email,
+        rank: index + 1,
+      };
+    }));
   } catch (error) { next(error); }
 }

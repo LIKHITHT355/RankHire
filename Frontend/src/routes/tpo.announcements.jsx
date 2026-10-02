@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { Shell } from "../components/Shell.jsx";
 import { PageHeader, Panel, Field, Notice } from "../components/Primitives.jsx";
 import { DataState } from "../components/DataState.jsx";
+import { MailInbox } from "../components/MailInbox.jsx";
 import { useApiData } from "../hooks/useApiData.js";
 import { isApiConfigured } from "../services/api.js";
 import {
@@ -75,7 +76,9 @@ function TpoAnnouncements() {
         description="Notices published here are visible to every student workspace."
       />
 
-      <Panel title="New announcement">
+      <MailInbox onForwarded={state.reload} />
+
+      <Panel title="New announcement" className="mt-6">
         <form className="space-y-4" onSubmit={handlePublish}>
           <Field label="Title" htmlFor="title">
             <input
@@ -119,7 +122,7 @@ function TpoAnnouncements() {
                           {new Date(a.createdAt).toLocaleDateString()}
                         </p>
                       ) : null}
-                      <p className="mt-3 text-sm text-muted-foreground">{a.body}</p>
+                      <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">{a.message}</p>
                     </div>
                     <button
                       type="button"

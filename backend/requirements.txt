@@ -1,4 +1,7 @@
 pdfplumber
+PyMuPDF
+Pillow
+pytesseract
 python-docx
 spacy
 # Install the local English NER model once after installing these packages:

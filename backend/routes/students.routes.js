@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import path from "path";
-import { list, getOne, mine, updateMine, uploadResume, marksheets } from "../controllers/students.controller.js";
+import { list, getOne, mine, updateMine, uploadResume, marksheets, saveSgpa } from "../controllers/students.controller.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { requireRole } from "../middleware/requireRole.js";
 const router = Router();
@@ -14,5 +14,6 @@ router.patch("/me", requireAuth, requireRole("student"), updateMine);
 router.get("/me/resume", requireAuth, requireRole("student"), mine);
 router.post("/me/resume", requireAuth, requireRole("student"), upload.single("resume"), uploadResume);
 router.get("/me/marksheets", requireAuth, requireRole("student"), marksheets);
+router.put("/save-sgpa", requireAuth, requireRole("student"), saveSgpa);
 router.get("/:id", requireAuth, getOne);
 export default router;

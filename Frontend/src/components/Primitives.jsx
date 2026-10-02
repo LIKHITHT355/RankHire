@@ -36,9 +36,9 @@ export function StatCard({ label, value, hint }) {
 
 // This is a plain content panel with an optional title,
 // used to group related information on a page.
-export function Panel({ title, description, actions, children }) {
+export function Panel({ title, description, actions, children, className = "" }) {
   return (
-    <section className="panel p-5 sm:p-6">
+    <section className={`panel p-5 sm:p-6 ${className}`}>
       {title ? (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>

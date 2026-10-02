@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Shell } from "../components/Shell.jsx";
 import { PageHeader, Panel, Field, Notice } from "../components/Primitives.jsx";
 import { NotConnected, Skeleton, ErrorCard } from "../components/DataState.jsx";
@@ -7,6 +8,7 @@ import { useApiData } from "../hooks/useApiData.js";
 import { getMyProfile, updateProfile, getExtractedResume } from "../services/students.js";
 import { ResumeUpload } from "../components/ResumeUpload.jsx";
 import { ApiError } from "../services/api.js";
+import { studentQueryKeys } from "../lib/queryKeys.js";
 
 export const Route = createFileRoute("/student/profile")({
   head: () => ({
@@ -21,6 +23,7 @@ export const Route = createFileRoute("/student/profile")({
 });
 
 function StudentProfile() {
+  const queryClient = useQueryClient();
   const state = useApiData(() => getMyProfile(), []);
   const userId = state.data?.user?._id || state.data?.user?.id;
   const resumeState = useApiData(
@@ -38,6 +41,7 @@ function StudentProfile() {
   );
   const [form, setForm] = useState({
     name: "",
+    usn: "",
     phone: "",
     email: "",
     location: "",
@@ -55,12 +59,15 @@ function StudentProfile() {
     if (state.data) {
       setForm((current) => ({
         name: state.data.name ?? "",
+        usn: state.data.usn ?? "",
         phone: state.data.phone ?? "",
         email: current.email,
         location: current.location,
         department: state.data.department ?? "",
         batch: state.data.batch ?? "",
-        skills: Array.isArray(state.data.skills) ? state.data.skills.join(", ") : (state.data.skills ?? ""),
+        skills: Array.isArray(state.data.skills)
+          ? state.data.skills.join(", ")
+          : (state.data.skills ?? ""),
       }));
     }
   }, [state.data]);
@@ -98,6 +105,7 @@ function StudentProfile() {
           .filter(Boolean),
       });
       state.setData(result.data);
+      await queryClient.invalidateQueries({ queryKey: studentQueryKeys.dashboard });
       setMessage(result.message);
     } catch (err) {
       setError(err.message || "Could not save your profile.");
@@ -116,83 +124,99 @@ function StudentProfile() {
 
       {!state.configured ? <NotConnected /> : null}
       {state.configured && state.loading ? <Skeleton rows={5} /> : null}
-      {state.configured && state.error ? <ErrorCard message={state.error} onRetry={state.reload} /> : null}
+      {state.configured && state.error ? (
+        <ErrorCard message={state.error} onRetry={state.reload} />
+      ) : null}
 
       {state.configured && !state.loading && !state.error ? (
         <>
-        <Panel title="Details">
-          <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSave}>
-            <Field label="Full name" htmlFor="name">
-              <input
-                id="name"
-                className="rh-input"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </Field>
-            <Field label="Contact number" htmlFor="phone">
-              <input
-                id="phone"
-                className="rh-input"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
-            </Field>
-            <Field label="Email" htmlFor="email">
-              <input
-                id="email"
-                type="email"
-                className="rh-input"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </Field>
-            <Field label="Location" htmlFor="location">
-              <input
-                id="location"
-                className="rh-input"
-                value={form.location}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
-              />
-            </Field>
-            <Field label="Department" htmlFor="department">
-              <input
-                id="department"
-                className="rh-input"
-                value={form.department}
-                onChange={(e) => setForm({ ...form, department: e.target.value })}
-              />
-            </Field>
-            <Field label="Batch" htmlFor="batch">
-              <input
-                id="batch"
-                className="rh-input"
-                value={form.batch}
-                onChange={(e) => setForm({ ...form, batch: e.target.value })}
-              />
-            </Field>
-            <div className="sm:col-span-2">
-              <Field label="Skills" htmlFor="skills" hint="Separate each skill with a comma.">
+          <Panel title="Details">
+            <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSave}>
+              <Field label="Full name" htmlFor="name">
                 <input
-                  id="skills"
+                  id="name"
                   className="rh-input"
-                  value={form.skills}
-                  onChange={(e) => setForm({ ...form, skills: e.target.value })}
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
               </Field>
-            </div>
-            <div className="sm:col-span-2">
-              <button type="submit" className="rh-btn rh-btn-primary" disabled={saving}>
-                {saving ? "Saving…" : "Save profile"}
-              </button>
-              <Notice tone="success">{message}</Notice>
-              <Notice tone="error">{error}</Notice>
-            </div>
-          </form>
-        </Panel>
-        <div className="mt-6">
-          <ResumeUpload userId={userId} onUploaded={resumeState.reload} />
-        </div>
+              <Field label="USN" htmlFor="usn">
+                <input
+                  id="usn"
+                  className="rh-input"
+                  value={form.usn}
+                  onChange={(e) => setForm({ ...form, usn: e.target.value })}
+                />
+              </Field>
+              <Field label="Contact number" htmlFor="phone">
+                <input
+                  id="phone"
+                  className="rh-input"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
+              </Field>
+              <Field label="Email" htmlFor="email">
+                <input
+                  id="email"
+                  type="email"
+                  className="rh-input"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+              </Field>
+              <Field label="Location" htmlFor="location">
+                <input
+                  id="location"
+                  className="rh-input"
+                  value={form.location}
+                  onChange={(e) => setForm({ ...form, location: e.target.value })}
+                />
+              </Field>
+              <Field label="Department" htmlFor="department">
+                <input
+                  id="department"
+                  className="rh-input"
+                  value={form.department}
+                  onChange={(e) => setForm({ ...form, department: e.target.value })}
+                />
+              </Field>
+              <Field label="Batch" htmlFor="batch">
+                <input
+                  id="batch"
+                  className="rh-input"
+                  value={form.batch}
+                  onChange={(e) => setForm({ ...form, batch: e.target.value })}
+                />
+              </Field>
+              <div className="sm:col-span-2">
+                <Field label="Skills" htmlFor="skills" hint="Separate each skill with a comma.">
+                  <input
+                    id="skills"
+                    className="rh-input"
+                    value={form.skills}
+                    onChange={(e) => setForm({ ...form, skills: e.target.value })}
+                  />
+                </Field>
+              </div>
+              <div className="sm:col-span-2">
+                <button type="submit" className="rh-btn rh-btn-primary" disabled={saving}>
+                  {saving ? "Saving…" : "Save profile"}
+                </button>
+                <Notice tone="success">{message}</Notice>
+                <Notice tone="error">{error}</Notice>
+              </div>
+            </form>
+          </Panel>
+          <div className="mt-6">
+            <ResumeUpload
+              userId={userId}
+              onUploaded={async () => {
+                await resumeState.reload();
+                await queryClient.invalidateQueries({ queryKey: studentQueryKeys.resume });
+              }}
+            />
+          </div>
         </>
       ) : null}
     </Shell>

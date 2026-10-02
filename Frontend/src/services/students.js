@@ -1,16 +1,15 @@
 // This file covers everything about students.
 // Reading the directory, reading one student, updating a profile,
-// handing over a resume and fetching marksheets.
+// handing over a resume and saving SGPA records.
 
 import { request } from "./api.js";
+import { toQueryString } from "../lib/query.js";
 
 // This loads the full student directory from the backend.
 // Optional filters such as department or batch are added to the
 // address so the server can do the filtering for us.
 export function getStudents(filters = {}) {
-  const query = new URLSearchParams(
-    Object.entries(filters).filter(([, v]) => v !== "" && v !== undefined && v !== null),
-  ).toString();
+  const query = toQueryString(filters);
   return request(`/students${query ? `?${query}` : ""}`);
 }
 
@@ -62,9 +61,13 @@ export function uploadResumeForExtraction(file, userId) {
   return request("/api/resumes/upload", { method: "POST", body: form });
 }
 
-// This loads the semester marksheets for the signed in student.
-// The subjects, marks and credits come back from the backend and
-// the app only does the SGPA and CGPA maths on top of them.
-export function getMarksheets() {
-  return request("/students/me/marksheets");
+export function extractMarks(file, courses) {
+  const form = new FormData();
+  form.append("marksheet", file);
+  form.append("courses", JSON.stringify(courses));
+  return request("/api/marks/extract-marks", { method: "POST", body: form });
+}
+
+export function saveSgpa(record) {
+  return request("/api/student/save-sgpa", { method: "PUT", body: record });
 }

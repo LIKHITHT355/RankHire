@@ -16,6 +16,8 @@ import settingsRoutes from "./routes/settings.routes.js";
 import companyRoutes from "./routes/companies.routes.js";
 import applicationRoutes from "./routes/applications.routes.js";
 import resumeRoutes from "./routes/resumes.routes.js";
+import marksRoutes from "./routes/marks.js";
+import mailRoutes from "./routes/mail.js";
 
 const app = express();
 const production = process.env.NODE_ENV === "production";
@@ -33,6 +35,8 @@ app.use(session({ name: "rankhire.sid", secret: process.env.SESSION_SECRET || "d
 app.use("/uploads", express.static("uploads"));
 app.use("/auth", authRoutes); app.use("/students", studentRoutes); app.use("/api/student", studentRoutes); app.use("/announcements", announcementRoutes); app.use("/jobs", jobRoutes); app.use("/applications", applicationRoutes); app.use("/ranking", rankingRoutes); app.use("/shortlists", shortlistRoutes); app.use("/settings", settingsRoutes); app.use("/companies", companyRoutes);
 app.use("/api/resumes", resumeRoutes);
+app.use("/api/marks", marksRoutes);
+app.use("/api/mail", mailRoutes);
 
 // This turns unexpected errors into the API's documented error shape.
 // Validation errors become a helpful 400 instead of a generic server error.
