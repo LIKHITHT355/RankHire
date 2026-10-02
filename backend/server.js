@@ -19,11 +19,26 @@ import mailRoutes from "./routes/mail.js";
 
 const app = express();
 const production = process.env.NODE_ENV === "production";
+const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+if (production && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === "development-secret-change-me")) {
+  throw new Error("SESSION_SECRET must be set to a strong, unique value in production.");
+}
 
 // This accepts browser calls only from the configured frontend address.
 // Credentials are enabled so the browser can send the session cookie.
 // JSON middleware then turns normal request bodies into JavaScript objects.
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173", credentials: true }));
+app.use(cors({
+  origin(origin, callback) {
+    // Requests without an Origin header (health checks, curl, server-to-server) are allowed.
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Origin is not allowed by CORS."));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // This stores login sessions in MongoDB instead of temporary server memory.
